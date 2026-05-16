@@ -1,6 +1,11 @@
 import React, { useState, useEffect } from 'react';
-// 1. Adicionamos o ícone FileText para o nosso botão flutuante
 import { ChevronDown, Trophy, TrendingUp, BookOpen, RotateCcw, CheckCircle, XCircle, Lightbulb, Clock, FileText } from 'lucide-react';
+import { createClient } from '@supabase/supabase-js';
+
+// Conexão com o seu banco de dados no Supabase
+const supabaseUrl = 'https://kdvaoykmexvkggjnprtu.supabase.co';
+const supabaseKey = 'sb_publishable_vGwA76Cod9vPa_WzFrQwPA_px1wd9QH';
+const supabase = createClient(supabaseUrl, supabaseKey);
 
 const CMRJStudyApp = () => {
   const [currentPage, setCurrentPage] = useState('home');
@@ -10,126 +15,84 @@ const CMRJStudyApp = () => {
   const [userAnswers, setUserAnswers] = useState({});
   const [showResults, setShowResults] = useState(false);
   const [timeLeft, setTimeLeft] = useState(12600); 
-  
-  // 2. Novo estado para controlar se a janela de textos está aberta ou fechada
   const [isTextModalOpen, setIsTextModalOpen] = useState(false);
+  const [examQuestions, setExamQuestions] = useState([]);
 
+  // Estado inicial puxando do localStorage por garantia de velocidade
   const [stats, setStats] = useState(() => {
     const saved = localStorage.getItem('cmrjStats');
     return saved ? JSON.parse(saved) : {};
   });
 
+  // Busca os dados da nuvem assim que o app abre
+  useEffect(() => {
+    const fetchStatsFromDB = async () => {
+      const { data, error } = await supabase.from('estatisticas').select('*');
+      
+      if (data && !error) {
+        const dbStats = {};
+        data.forEach(row => {
+          dbStats[row.id] = {
+            attempts: row.tentativas,
+            bestScore: row.melhor_score,
+            percentage: row.percentual,
+            lastAttempt: row.ultima_tentativa,
+            totalQuestions: 20
+          };
+        });
+        setStats(dbStats);
+        localStorage.setItem('cmrjStats', JSON.stringify(dbStats));
+      }
+    };
+    fetchStatsFromDB();
+  }, []);
+
   const examsData = {
     '2023-2024': {
       year: '2023-2024',
-      // 3. AQUI ESTÁ A NOSSA NOVA GAVETA DE TEXTOS!
       texts: {
         portuguese: [
           { 
             title: 'TEXTO I - Correr não causa mais lesões do que outros esportes', 
-            content: `            
-              Correr não causa mais lesões do que outros esportes
+            content: `Correr não causa mais lesões do que outros esportes
               
-              Fisioterapeuta especialista em biomecânica da corrida, Raquel Castanharo desmistifica alguns mitos em relação
-              à modalidade
+Fisioterapeuta especialista em biomecânica da corrida, Raquel Castanharo desmistifica alguns mitos em relação à modalidade
               
-              Correr pode causar lesões, mas, ao contrário do que alguns profissionais de saúde podem dizer,
-              como "pare de correr e comece a nadar ou fazer hidroginastica", eu não vou te dizer isso. Nós, seres
-              humanos, somos animais corredores. Nao somos baleias ou golfinhos feitos apenas para ficar na água.
-              Então, em vez de se assustar com a possibilidade de correr e se machucar, quero te fornecer ferramentas
-              para ter uma vida saudável na corrida e também desmistificar algumas crenças.
-              O primeiro mito é que a corrida causa mais lesões do que outros esportes. Isso não é
-              verdade. Quando olhamos para as taxas de lesões na corrida em comparacao com outros esportes, nao há
-              uma diferença significativa. Pode parecer que sim, porque quem corre geralmente leva a atividade mais a
-              sério do que alguém que joga uma partida casual de futebol no fim de semana. Qualquer atividade física
-              possui um certo risco de dores e lesões, como tendinite ou dores musculares. Mas a corrida, na verdade,
-              ajuda a diminuir o risco de doenças relacionadas ao sedentarismo. O sedentarismo é a principal causa de
-              doenças que levam à morte no mundo. Ficar em casa no sofá é muito pior do que correr.
-              E, diferente do que muitos pensam, correr não causa danos aos joelhos. Eu sei que você ja ouviu
-              isso, mas se olharmos para as evidências científicas, não é verdade. Sabe o que realmente prejudica os
-              15 joelhos? O sedentarismo, mais uma vez. Aliás, há evidências de que corredores têm menos incidência de
-              artrose nos joelhos e quadris na velhice.
-              Mas nem tudo são flores. Se você está correndo e começa a sentir dor, não entre em pânico. Se
-              você fizer tudo corretamente, essa lesão será apenas um episódio temporário que não vai te afastar da
-              corrida. Trabalho com corrida há 16 anos e já passei por situações assim. Mais de 5 mil corredores já
-              passaram pela minha clínica especializada em corrida, e posso te dizer que nunca vi uma lesao ou problema
-              que tenha impedido alguém de correr para sempre. É um episódio ou um período difícil, mas não é o fim.
-              Inclusive, pessoas correm mesmo sem pernas. Tenho dois amigos que sao amputados devido a acidentes
-              e ainda assim correm. Um deles é recordista dos 100 metros rasos. Tenha isso em mente.
-              E o que você pode fazer para tornar esses episódios curtos e evitar que aconteçam com frequência
-              25 ao longo da sua vida como corredor? A chave é equilibrar sua capacidade e demanda. Capacidade é o que
-              seu joelho, seu pé, seu tendão suportam, e demanda é o que você está fazendo com o seu corpo. Se você
-              estiver impondo uma demanda muito maior do que sua capacidade, lesões e dores ocorrerão. Você precisa
-              aprender a equilibrar isso. Avalie se sua capacidade está adequada, se está fortalecido corretamente, se
-              está absorvendo o impacto das suas passadas de forma adequada e se tem boa mobilidade. Às vezes, é
-              necessário ajustar a demanda, descansar adequadamente e evitar aumentos bruscos nos treinos. Quando
-              você sabe equilibrar a capacidade e a demanda, fica muito mais fácil controlar pequenos episódios de dor.
-              Claro, em algum momento você pode precisar de um médico, fisioterapeuta ou um profissional de
-              educação fisica. Existe um conceito chamado autoeficácia, que é quando você sabe que sua saúde está em
-              suas mãos e possui ferramentas para cuidar dela. Buscar ajuda profissional cientificamente embasada ajuda
-              35 as pessoas a se recuperarem mais rapidamente, terem menos dor e sofrerem menos lesões. Eu tenho uma
-              clínica e estou sempre disponível para ajudar, mas é importante que você saiba cuidar de si mesmo antes
-              mesmo de chegar até aqui.
-              Quando você sabe equilibrar capacidade e demanda, fica muito mais facil controlar pequenos
-              episodios de dor. Compartilhe esse texto com um amigo para que ele saiba que correr nao prejudica os
-              joelhos.
+Correr pode causar lesões, mas, ao contrário do que alguns profissionais de saúde podem dizer, como "pare de correr e comece a nadar ou fazer hidroginastica", eu não vou te dizer isso. Nós, seres humanos, somos animais corredores. Nao somos baleias ou golfinhos feitos apenas para ficar na água. Então, em vez de se assustar com a possibilidade de correr e se machucar, quero te fornecer ferramentas para ter uma vida saudável na corrida e também desmistificar algumas crenças.
+O primeiro mito é que a corrida causa mais lesões do que outros esportes. Isso não é verdade. Quando olhamos para as taxas de lesões na corrida em comparacao com outros esportes, nao há uma diferença significativa. Pode parecer que sim, porque quem corre geralmente leva a atividade mais a sério do que alguém que joga uma partida casual de futebol no fim de semana. Qualquer atividade física possui um certo risco de dores e lesões, como tendinite ou dores musculares. Mas a corrida, na verdade, ajuda a diminuir o risco de doenças relacionadas ao sedentarismo. O sedentarismo é a principal causa de doenças que levam à morte no mundo. Ficar em casa no sofá é muito pior do que correr.
+E, diferente do que muitos pensam, correr não causa danos aos joelhos. Eu sei que você ja ouviu isso, mas se olharmos para as evidências científicas, não é verdade. Sabe o que realmente prejudica os joelhos? O sedentarismo, mais uma vez. Aliás, há evidências de que corredores têm menos incidência de artrose nos joelhos e quadris na velhice.
+Mas nem tudo são flores. Se você está correndo e começa a sentir dor, não entre em pânico. Se você fizer tudo corretamente, essa lesão será apenas um episódio temporário que não vai te afastar da corrida. Trabalho com corrida há 16 anos e já passei por situações assim. Mais de 5 mil corredores já passaram pela minha clínica especializada em corrida, e posso te dizer que nunca vi uma lesao ou problema que tenha impedido alguém de correr para sempre. É um episódio ou um período difícil, mas não é o fim. Inclusive, pessoas correm mesmo sem pernas. Tenho dois amigos que sao amputados devido a acidentes e ainda assim correm. Um deles é recordista dos 100 metros rasos. Tenha isso em mente.
+E o que você pode fazer para tornar esses episódios curtos e evitar que aconteçam com frequência ao longo da sua vida como corredor? A chave é equilibrar sua capacidade e demanda. Capacidade é o que seu joelho, seu pé, seu tendão suportam, e demanda é o que você está fazendo com o seu corpo. Se você estiver impondo uma demanda muito maior do que sua capacidade, lesões e dores ocorrerão. Você precisa aprender a equilibrar isso. Avalie se sua capacidade está adequada, se está fortalecido corretamente, se está absorvendo o impacto das suas passadas de forma adequada e se tem boa mobilidade. Às vezes, é necessário ajustar a demanda, descansar adequadamente e evitar aumentos bruscos nos treinos. Quando você sabe equilibrar a capacidade e a demanda, fica muito mais fácil controlar pequenos episódios de dor.
+Claro, em algum momento você pode precisar de um médico, fisioterapeuta ou um profissional de educação fisica. Existe um conceito chamado autoeficácia, que é quando você sabe que sua saúde está em suas mãos e possui ferramentas para cuidar dela. Buscar ajuda profissional cientificamente embasada ajuda as pessoas a se recuperarem mais rapidamente, terem menos dor e sofrerem menos lesões. Eu tenho uma clínica e estou sempre disponível para ajudar, mas é importante que você saiba cuidar de si mesmo antes mesmo de chegar até aqui.
+Quando você sabe equilibrar capacidade e demanda, fica muito mais facil controlar pequenos episodios de dor. Compartilhe esse texto com um amigo para que ele saiba que correr nao prejudica os joelhos.
               
-              (Adaptado de: www.ge.com.br/ acessado em: 08AGO23, às 14h37) TODO O TEXTO I DA PROVA DE 2023-2024. PODE DAR ENTER E SEPARAR OS PARÁGRAFOS NORMALMENTE]` 
+(Adaptado de: www.ge.com.br/ acessado em: 08AGO23, às 14h37)` 
           },
           { 
             title: 'TEXTO II - Quem tem medo de quê?', 
-            content: `
-            O estudo, publicado na revista Frontiers in Psychology, explora o uso da corrida como escapismo
-            
-            Correr como um meio de escapar das emoções negativas é muitas vezes percebido como uma
-            estratégia benéfica para melhorar o bem-estar geral. No entanto, estudos recentes sugerem que essa
-            abordagem pode ter consequências não intencionais e potencialmente exacerbada da sensação de bem-
-            estar.
-            
-            para suprir emoções negativas e como isso pode levar à dependência do exercício e à diminuição da
-            sensação de bem-estar geral.
-            À primeira vista, correr parece oferecer uma solução promissora para indivíduos que buscam alívio
-            para emoções negativas. Engajar-se em atividades físicas, como correr, pode desencadear a liberação
-            de endorfinas, comumente chamadas de hormônios do "bem-estar". Essas endorfinas contribuem para
-            uma elevação temporária do humor, proporcionando uma sensação de alívio do sofrimento emocional.
-            Durante o estudo, quase 230 corredores de todos os níveis preencheram questionários relacionados
-            ao motivo de correrem. Os participantes foram questionados se sentiam que correr os levava a aprender
-            coisas novas sobre si ou se se sentiam mais abertos a novas experiências e perspectivas.
-            Os pesquisadores descobriram que correr para suprimir emoções negativas estava fortemente
-            associado à dependência do exercício e a uma diminuição do bem-estar subjetivo.
-            É crucial reconhecer que somente a corrida não pode resolver as causas profundas do sofrimento
-            emocional. As emocões negativas geralmente decorrem de problemas psicológicos ou emocionais
-            subjacentes que requerem atenção e resolução.
-            A confiança excessiva na corrida como uma fuga emocional pode inadvertidamente levar a uma
-            obsessão doentia pela própria atividade. Essa fixação na corrida pode transformar uma saída positiva em
-            uma fonte de estresse e pressão, impactando negativamente o bem-estar geral.
-            "Você faz algo que é bom para sua saúde física, mas, na verdade, destrói sua saúde mental", disse
-            o Dr. Frode Stenseng, autor do estudo e professor de psicologia da Universidade Norueguesa de Ciéncia e
-            Tecnologia.
-            Em estudos futuros, Stenseng espera descobrir de forma mais concreta o quanto a dependência
-            de exercicios afeta o bem-estar e como mudar a mentalidade ao procurar este escape.
-            
-            Adaptado de: https://www.tecmundo.com.br/ciencia/264380-cuidado-corrida-excesso-prejudicar.htm, acesso em
-            08AGO23, às 14:23h)` 
+            content: `O estudo, publicado na revista Frontiers in Psychology, explora o uso da corrida como escapismo
+              
+Correr como um meio de escapar das emoções negativas é muitas vezes percebido como uma estratégia benéfica para melhorar o bem-estar geral. No entanto, estudos recentes sugerem que essa abordagem pode ter consequências não intencionais e potencialmente exacerbada da sensação de bem-estar.
+              
+para suprir emoções negativas e como isso pode levar à dependência do exercício e à diminuição da sensação de bem-estar geral.
+À primeira vista, correr parece oferecer uma solução promissora para indivíduos que buscam alívio para emoções negativas. Engajar-se em atividades físicas, como correr, pode desencadear a liberação de endorfinas, comumente chamadas de hormônios do "bem-estar". Essas endorfinas contribuem para uma elevação temporária do humor, proporcionando uma sensação de alívio do sofrimento emocional.
+Durante o estudo, quase 230 corredores de todos os níveis preencheram questionários relacionados ao motivo de correrem. Os participantes foram questionados se sentiam que correr os levava a aprender coisas novas sobre si ou se se sentiam mais abertos a novas experiências e perspectivas.
+Os pesquisadores descobriram que correr para suprimir emoções negativas estava fortemente associado à dependência do exercício e a uma diminuição do bem-estar subjetivo.
+É crucial reconhecer que somente a corrida não pode resolver as causas profundas do sofrimento emocional. As emocões negativas geralmente decorrem de problemas psicológicos ou emocionais subjacentes que requerem atenção e resolução.
+A confiança excessiva na corrida como uma fuga emocional pode inadvertidamente levar a uma obsessão doentia pela própria atividade. Essa fixação na corrida pode transformar uma saída positiva em uma fonte de estresse e pressão, impactando negativamente o bem-estar geral.
+"Você faz algo que é bom para sua saúde física, mas, na verdade, destrói sua saúde mental", disse o Dr. Frode Stenseng, autor do estudo e professor de psicologia da Universidade Norueguesa de Ciéncia e Tecnologia.
+Em estudos futuros, Stenseng espera descobrir de forma mais concreta o quanto a dependência de exercicios afeta o bem-estar e como mudar a mentalidade ao procurar este escape.
+              
+Adaptado de: https://www.tecmundo.com.br/ciencia/264380-cuidado-corrida-excesso-prejudicar.htm, acesso em 08AGO23, às 14:23h)` 
           },
           { 
             title: 'TEXTO III - Médico lista benefícios da corrida...', 
-            content: `            
-            Médico lista benefícios da corrida para a saúde e bem-estar
-            Médico do esporte explica por que a corrida provoca bem-estar e qual a forma correta de praticá-la
-            A prática de atividades físicas é um dos pilares para a manutenção da saúde e do bem-estar. A
-            corrida está entre um dos exercícios mais populares. Afinal, a atividade gera uma série de benefícios
-            para a saúde e qualidade de vida.
-            "A corrida é uma atividade de longa duração, que ajusta principalmente os mecanismos de
-            05 gasto energético. Então, ela melhora o metabolismo e ajusta a organela mitocôndria, que ativa a
-            queima de gordura. Quando corre, a pessoa libera endorfinas, que ajudam principalmente no bem-
-            estar, na sensação de prazer e saciedade", explica o médico do esporte João Branco.
-            Apesar dos inúmeros benefícios, a corrida precisa ser praticada de forma balanceada, não
-            adianta correr de forma esporádica ou de forma desenfreada. "A corrida precisa ser programada. O
-            10 excesso que nos chamamos de overtraining1 pode causar muitos danos articulares. Temos que ver o
-            reforço muscular, treino, articulações e, principalmente, o joelho, o tênis e o terreno", afirma Branco.
-            Segundo o médico, não há um horário ideal para correr. O indicado é que a pessoa encaixe o
-            exercicio conforme a sua disponibilidade.` 
+            content: `Médico lista benefícios da corrida para a saúde e bem-estar
+Médico do esporte explica por que a corrida provoca bem-estar e qual a forma correta de praticá-la
+A prática de atividades físicas é um dos pilares para a manutenção da saúde e do bem-estar. A corrida está entre um dos exercícios mais populares. Afinal, a atividade gera uma série de benefícios para a saúde e qualidade de vida.
+"A corrida é uma atividade de longa duração, que ajusta principalmente os mecanismos de gasto energético. Então, ela melhora o metabolismo e ajusta a organela mitocôndria, que ativa a queima de gordura. Quando corre, a pessoa libera endorfinas, que ajudam principalmente no bem-estar, na sensação de prazer e saciedade", explica o médico do esporte João Branco.
+Apesar dos inúmeros benefícios, a corrida precisa ser praticada de forma balanceada, não adianta correr de forma esporádica ou de forma desenfreada. "A corrida precisa ser programada. O excesso que nos chamamos de overtraining pode causar muitos danos articulares. Temos que ver o reforço muscular, treino, articulações e, principalmente, o joelho, o tênis e o terreno", afirma Branco.
+Segundo o médico, não há um horário ideal para correr. O indicado é que a pessoa encaixe o exercicio conforme a sua disponibilidade.` 
           },
           { 
             title: 'TEXTO IV - Tirinha', 
@@ -247,7 +210,6 @@ const CMRJStudyApp = () => {
     },
     '2025-2026': {
       year: '2025-2026',
-      // 4. E AQUI ESTÁ A GAVETA DE TEXTOS DA PROVA DE 2025-2026!
       texts: {
         portuguese: [
           { 
@@ -295,7 +257,7 @@ const CMRJStudyApp = () => {
         { id: 22, text: `A expressão "tipo", usada no primeiro quadrinho, poderia ser substituída, sem prejuízo de sentido, por`, options: { 'A': `parte de.`, 'B': `oposta a.`, 'C': `idêntica a.`, 'D': `derivada de.`, 'E': `como se fosse.` }, correct: 'E' },
         { id: 23, text: `No texto I, as respostas fornecidas por Caramelo contêm um ponto de exclamação. Tal sinal de pontuação, nesse contexto, indica`, options: { 'A': `ênfase.`, 'B': `dúvida.`, 'C': `espanto.`, 'D': `irritação.`, 'E': `indiferença.` }, correct: 'A' },
         { id: 24, text: `No poema, personagens diferentes revelam seus medos de trovão, de injeção, de escuro, de vampiro, de piolho, de avião, entre outros. Sobre esses medos e a forma como são apresentados no poema, é possível afirmar que`, options: { 'A': `o medo pode ser tanto de coisas reais quanto imagináveis.`, 'B': `os medos representam apenas perigos reais e concretos.`, 'C': `os medos são inventados pelo autor para criar humor.`, 'D': `sentir medo é um comportamento muito reprovável.`, 'E': `o texto critica o medo gerado por lendas populares.` }, correct: 'A' },
-        { id: 25, text: `Releia os versos do texto II a seguir e responda à questão proposta:\n"Que me mete muito medo!" (v. 4)\n"Mas eu tenho muito medo" (v. 7)\n"Do que eu tenho muito medo," (v. 21)\n\nNos versos acima, a repetição das expressões destacadas ("muito medo") produzem um efeito que`, options: { 'A': `confere humor ao texto.`, 'B': `reforça a intensidade do medo sentido.`, 'C': `explicita a preferência por aqueles que têm medo.`, 'D': `desfaz a comparação entre as falas ao longo do poema.`, 'E': `gera ambiguidade em relação aos medos apresentados.` }, correct: 'B' },
+        { id: 25, text: `Releia os versos do texto II a seguir e responda à questão proposta:\n"Que me mete muito medo!" (v. 4)\n"Mas eu tenho muito medo" (v. 7)\n"Do que eu tenho muito medo," (v. 21)\n\nNos versos acima, a repetição das expressions destacadas ("muito medo") produzem um efeito que`, options: { 'A': `confere humor ao texto.`, 'B': `reforça a intensidade do medo sentido.`, 'C': `explicita a preferência por aqueles que têm medo.`, 'D': `desfaz a comparação entre as falas ao longo do poema.`, 'E': `gera ambiguidade em relação aos medos apresentados.` }, correct: 'B' },
         { id: 26, text: `Releia os versos do texto II a seguir e responda à questão proposta:\n"Até me arrepia a espinha... / Tenho medo de injeção!" (v. 15 e 16)\n"Do que eu tenho muito medo, / que me deixa num apuro..." (v. 21 e 22)\n"Mas existe uma coisinha... / Eu de medo até me encolho!" (v. 37 e 38)\n"É que está chegando a hora / de aparecer lobisomem..." (v. 69 e 70)\n\nNo poema, as reticências aparecem várias vezes em diferentes contextos. Sobre o uso de reticências nos versos acima, é correto afirmar que são empregadas para`, options: { 'A': `marcar pausas aleatórias.`, 'B': `revelar que o poema está incompleto.`, 'C': `substituir vírgulas para variar a pontuação nesses versos.`, 'D': `indicar que o autor se esqueceu de concluir o pensamento.`, 'E': `sugerir uma hesitação ou uma fala que ainda não se completou.` }, correct: 'E' },
         { id: 27, text: `Em "(...) que é só acender a luz / e pronto! Acabou-se o escuro!" (v. 27 e 28), a expressão destacada ("e pronto! Acabou-se o escuro!") enfatiza a ideia de`, options: { 'A': `consequência.`, 'B': `proporção.`, 'C': `finalidade.`, 'D': `oposição.`, 'E': `causa.` }, correct: 'A' },
         { id: 28, text: `No texto II, há vozes que dialogam sobre o medo: uma delas comenta por que não se assusta diante daquilo que faz a outra tremer para, logo em seguida, confessar seu medo motivado por outras razões. O verso que exprime o que essa contraposição revela é`, options: { 'A': `"Não tenho medo de nada!" (v. 53)`, 'B': `"Mas apesar de valente" (v. 54)`, 'C': `"eu não tenho medo, não!" (v. 59)`, 'D': `"Pelo que vemos, pessoal," (v. 63)`, 'E': `"Todo mundo tem um medo," (v. 65)` }, correct: 'E' },
@@ -313,11 +275,27 @@ const CMRJStudyApp = () => {
         { id: 40, text: `Releia o trecho do texto IV a seguir:\n"O cachorrinho tinha, agora, um inimigo pela frente. Correu em direção à fera, e o leão abriu a bocarra para devorá-lo. Dorothy, sentindo que poderia perder o amigo, sem avaliar o perigo, avançou e deu um tapa no focinho do leão. Gritou:\n- Você não vai morder o Totó! Onde já se viu bicho do seu tamanho brigar com cachorrinho tão pequeno? Não tem vergonha, não?\n- Mas eu não mordi - disse o Leão, esfregando a pata no focinho, onde a menina tinha batido." (l. 12-17)\n\nA reação de Dorothy, no trecho acima, é gerada por um fato que a faz agir impulsivamente. O fato e a conclusão a que Dorothy chega a partir dele são, respectivamente,`, options: { 'A': `o Leão era covarde / Totó seria mordido.`, 'B': `o Leão abriu a boca diante de Totó / Totó estava correndo perigo.`, 'C': `Dorothy bateu no Leão / O Leão se vingaria em Totó, seu melhor amigo.`, 'D': `Totó correu em direção ao Leão / O Leão, por estar com medo, morderia Totó.`, 'E': `Totó fugiu do Leão / O Leão reagiria com valentia para manter sua condição de Rei dos Animais.` }, correct: 'B' }
       ]
     }
-  }; // <-- FIM DO NOSSO BANCO DE DADOS
+  };
 
-  const saveStats = (newStats) => {
+  // Salva no localStorage e envia para a nuvem do Supabase simultaneamente
+  const saveStatsToDB = async (key, statData) => {
+    const newStats = { ...stats, [key]: statData };
     setStats(newStats);
     localStorage.setItem('cmrjStats', JSON.stringify(newStats));
+
+    const { error } = await supabase
+      .from('estatisticas')
+      .upsert({
+        id: key,
+        tentativas: statData.attempts,
+        melhor_score: statData.bestScore,
+        percentual: statData.percentage,
+        ultima_tentativa: statData.lastAttempt
+      });
+      
+    if (error) {
+      console.error("Erro ao salvar na nuvem:", error);
+    }
   };
 
   const getYearStats = (year, subject) => {
@@ -326,11 +304,21 @@ const CMRJStudyApp = () => {
   };
 
   const calculateScore = () => {
-    if (!selectedYear || !selectedSubject || !examsData[selectedYear]) return 0;
-    const questionsList = examsData[selectedYear][selectedSubject] || [];
     let correct = 0;
-    questionsList.forEach(q => { if (userAnswers[q.id] === q.correct) correct++; });
+    examQuestions.forEach(q => {
+      if (userAnswers[q.id] === q.correct) correct++;
+    });
     return correct;
+  };
+
+  // Função que mistura as opções do array
+  const shuffleArray = (array) => {
+    const shuffled = [...array];
+    for (let i = shuffled.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+    }
+    return shuffled;
   };
 
   useEffect(() => {
@@ -359,22 +347,24 @@ const CMRJStudyApp = () => {
     const percentage = (score / 20) * 100;
     const key = `${selectedYear}-${selectedSubject}`;
     const currentStats = getYearStats(selectedYear, selectedSubject);
-    const newStats = {
-      ...stats,
-      [key]: {
-        attempts: currentStats.attempts + 1,
-        bestScore: Math.max(currentStats.bestScore, score),
-        totalQuestions: 20,
-        percentage: percentage,
-        lastAttempt: new Date().toLocaleDateString('pt-BR')
-      }
+    
+    const attemptData = {
+      attempts: currentStats.attempts + 1,
+      bestScore: Math.max(currentStats.bestScore, score),
+      totalQuestions: 20,
+      percentage: percentage,
+      lastAttempt: new Date().toLocaleDateString('pt-BR')
     };
-    saveStats(newStats);
+
+    saveStatsToDB(key, attemptData);
+    
     setShowResults(true);
-    setIsTextModalOpen(false); // Fecha os textos ao enviar a prova
+    setIsTextModalOpen(false);
   };
 
   const resetQuiz = () => {
+    const baseQuestions = examsData[selectedYear]?.[selectedSubject] || [];
+    setExamQuestions(shuffleArray(baseQuestions));
     setUserAnswers({});
     setCurrentQuestion(0);
     setShowResults(false);
@@ -385,6 +375,10 @@ const CMRJStudyApp = () => {
   const handleStartExam = (year, subject) => {
     setSelectedYear(year);
     setSelectedSubject(subject);
+    
+    const baseQuestions = examsData[year]?.[subject] || [];
+    setExamQuestions(shuffleArray(baseQuestions));
+
     setCurrentPage('quiz');
     setUserAnswers({});
     setCurrentQuestion(0);
@@ -393,10 +387,7 @@ const CMRJStudyApp = () => {
     setIsTextModalOpen(false);
   };
 
-  const questions = (selectedYear && selectedSubject && examsData[selectedYear])
-    ? examsData[selectedYear][selectedSubject] || []
-    : [];
-  const currentQ = questions[currentQuestion];
+  const currentQ = examQuestions[currentQuestion];
   const score = calculateScore();
   const percentage = (score / 20) * 100;
 
@@ -412,14 +403,12 @@ const CMRJStudyApp = () => {
         @keyframes bounceIn { 0% { transform: scale(0.3); opacity: 0; } 50% { opacity: 1; } 100% { transform: scale(1); opacity: 1; } }
         .pulse-light { animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite; }
         @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
-        /* Nova barra de rolagem customizada para os textos */
         .custom-scrollbar::-webkit-scrollbar { width: 8px; }
         .custom-scrollbar::-webkit-scrollbar-track { background: #f3e8ff; border-radius: 8px; }
         .custom-scrollbar::-webkit-scrollbar-thumb { background: #c084fc; border-radius: 8px; }
         .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #a855f7; }
       `}</style>
 
-      {/* 5. AQUI ESTÁ O NOSSO NOVO BOTÃO FLUTUANTE */}
       {currentPage === 'quiz' && !showResults && examsData[selectedYear]?.texts?.[selectedSubject] && (
         <button
           onClick={() => setIsTextModalOpen(true)}
@@ -430,7 +419,6 @@ const CMRJStudyApp = () => {
         </button>
       )}
 
-      {/* 6. AQUI ESTÁ A NOSSA NOVA JANELA (MODAL) DE LEITURA DE TEXTOS */}
       {isTextModalOpen && (
         <div className="fixed inset-0 bg-gray-900 bg-opacity-70 backdrop-blur-sm z-50 flex items-center justify-center p-4 fade-in">
           <div className="bg-white rounded-2xl w-full max-w-4xl max-h-[85vh] flex flex-col shadow-2xl border-4 border-purple-100">
@@ -589,31 +577,73 @@ const CMRJStudyApp = () => {
               </div>
 
               <div className="space-y-3 mb-8">
-                {currentQ.options && Object.entries(currentQ.options).map(([letter, answerText]) => (
-                  <button
-                    key={letter}
-                    onClick={() => handleAnswer(currentQ.id, letter)}
-                    className={`w-full p-4 text-left rounded-xl border-2 transition-all flex gap-3 ${
-                      userAnswers[currentQ.id] === letter ? 'border-purple-600 bg-purple-50 text-purple-700' : 'border-gray-200 bg-white text-gray-700 hover:border-purple-300'
-                    }`}
-                  >
-                    <span className="text-lg font-bold min-w-[24px]">{letter}.</span>
-                    <span className="text-lg font-medium">{answerText}</span>
-                  </button>
-                ))}
+                {currentQ.options && Object.entries(currentQ.options).map(([letter, answerText]) => {
+                  const isAnswered = userAnswers[currentQ.id] !== undefined;
+                  const isSelected = userAnswers[currentQ.id] === letter;
+                  const isCorrect = letter === currentQ.correct;
+
+                  let buttonClass = 'border-gray-200 bg-white text-gray-700 hover:border-purple-300';
+                  
+                  if (isAnswered) {
+                    if (isCorrect) {
+                      buttonClass = 'border-green-500 bg-green-50 text-green-700';
+                    } else if (isSelected && !isCorrect) {
+                      buttonClass = 'border-red-500 bg-red-50 text-red-700';
+                    } else {
+                      buttonClass = 'border-gray-100 bg-gray-50 text-gray-400 opacity-60';
+                    }
+                  }
+
+                  return (
+                    <button
+                      key={letter}
+                      onClick={() => !isAnswered && handleAnswer(currentQ.id, letter)}
+                      disabled={isAnswered} 
+                      className={`w-full p-4 text-left rounded-xl border-2 transition-all flex items-center gap-3 ${buttonClass}`}
+                    >
+                      <span className="text-lg font-bold min-w-[24px]">{letter}.</span>
+                      <span className="text-lg font-medium flex-1">{answerText}</span>
+                      
+                      {isAnswered && isCorrect && <CheckCircle className="w-6 h-6 flex-shrink-0 text-green-600 bounce-in" />}
+                      {isAnswered && isSelected && !isCorrect && <XCircle className="w-6 h-6 flex-shrink-0 text-red-600 bounce-in" />}
+                    </button>
+                  );
+                })}
               </div>
+
+              {userAnswers[currentQ.id] && (
+                <div className={`p-4 rounded-xl mb-8 flex items-center gap-4 fade-in border-2 ${
+                  userAnswers[currentQ.id] === currentQ.correct 
+                    ? 'bg-green-50 border-green-200 text-green-800' 
+                    : 'bg-red-50 border-red-200 text-red-800'
+                }`}>
+                  {userAnswers[currentQ.id] === currentQ.correct ? (
+                    <>
+                      <CheckCircle className="w-8 h-8 text-green-500 bounce-in flex-shrink-0" />
+                      <span className="font-bold text-lg">✨ Parabéns, você acertou!</span>
+                    </>
+                  ) : (
+                    <>
+                      <XCircle className="w-8 h-8 text-red-500 bounce-in flex-shrink-0" />
+                      <span className="font-bold text-lg">
+                        📚 Ops, vamos revisar essa? A resposta correta era a letra <span className="text-2xl uppercase bg-red-200 px-2 py-1 rounded">{currentQ.correct}</span>.
+                      </span>
+                    </>
+                  )}
+                </div>
+              )}
 
               <div className="flex gap-4 justify-between">
                 <button onClick={() => setCurrentQuestion(Math.max(0, currentQuestion - 1))} disabled={currentQuestion === 0} className="px-6 py-3 bg-gray-200 text-gray-700 rounded-lg disabled:opacity-50 hover:bg-gray-300 transition-all font-semibold">
                   ← Anterior
                 </button>
 
-                {currentQuestion === 19 ? (
+                {currentQuestion === examQuestions.length - 1 ? (
                   <button onClick={handleSubmit} className="px-8 py-3 bg-gradient-to-r from-green-500 to-green-600 text-white rounded-lg hover:shadow-lg transition-all font-semibold flex items-center gap-2">
                     <CheckCircle className="w-5 h-5" /> Enviar Respostas
                   </button>
                 ) : (
-                  <button onClick={() => setCurrentQuestion(Math.min(19, currentQuestion + 1))} className="px-6 py-3 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-all font-semibold">
+                  <button onClick={() => setCurrentQuestion(Math.min(examQuestions.length - 1, currentQuestion + 1))} className="px-6 py-3 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-all font-semibold">
                     Próxima →
                   </button>
                 )}
@@ -692,7 +722,7 @@ const CMRJStudyApp = () => {
           <div className="bg-white rounded-2xl p-8 shadow-lg">
             <h3 className="title-font text-2xl text-gray-800 mb-6">Revisão das Respostas</h3>
             <div className="space-y-4 max-h-96 overflow-y-auto custom-scrollbar">
-              {questions.map((q, idx) => {
+              {examQuestions.map((q, idx) => {
                 const isCorrect = userAnswers[q.id] === q.correct;
                 return (
                   <div key={q.id} className={`p-4 rounded-lg border-2 ${isCorrect ? 'border-green-300 bg-green-50' : 'border-red-300 bg-red-50'}`}>
