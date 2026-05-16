@@ -1,0 +1,8 @@
+{
+    "short_name": "Provas CMRJ",
+    "name": "Filipa estuda CMRJ",
+    "start_url": ".",
+    "display": "standalone",
+    "theme_color": "#c084fc",
+    "background_color": "#fdf4ff"
+  }
